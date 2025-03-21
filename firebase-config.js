@@ -1,6 +1,6 @@
 // Configuração do Firebase
 const firebaseConfig = {
-  apiKey: "AlzaSyAvQ2Y9rKeqQ8TSleXLnRv-bF90B-K8ULc",
+  apiKey: "AIzaSyAVQ2Y9rKeqQ8TSIeXLnRv-bF90B-K8ULc",
   authDomain: "whatsstag.firebaseapp.com",
   databaseURL: "https://whatsstag.firebaseio.com",
   projectId: "whatsstag",
