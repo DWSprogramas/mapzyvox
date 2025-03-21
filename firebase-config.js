@@ -1,13 +1,12 @@
 // Configuração do Firebase
-// Substitua com as credenciais do seu projeto Firebase
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "seu-projeto.firebaseapp.com",
-  databaseURL: "https://seu-projeto.firebaseio.com",
-  projectId: "seu-projeto",
-  storageBucket: "seu-projeto.appspot.com",
-  messagingSenderId: "seu-id-de-mensagem",
-  appId: "seu-app-id"
+  apiKey: "AlzaSyAvQ2Y9rKeqQ8TSleXLnRv-bF90B-K8ULc",
+  authDomain: "whatsstag.firebaseapp.com",
+  databaseURL: "https://whatsstag.firebaseio.com",
+  projectId: "whatsstag",
+  storageBucket: "whatsstag.appspot.com",
+  messagingSenderId: "216266845109",
+  appId: "1:216266845109:web:xxxxxxxxxxxxxxxxxxxx" // Precisamos do valor completo do appId
 };
 
 // Inicializa o Firebase
