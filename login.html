@@ -385,22 +385,21 @@
                 });
         }
         
-        // Login com Google
         function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            
-            auth.signInWithPopup(provider)
-                .then((result) => {
-                    // Login bem-sucedido
-                    window.location.href = './index.html';
-                })
-                .catch((error) => {
-                    // Exibir erro
-                    const errorElement = document.getElementById('loginError');
-                    errorElement.textContent = 'Erro ao fazer login com Google: ' + error.message;
-                    errorElement.style.display = 'block';
-                });
-        }
+					const provider = new firebase.auth.GoogleAuthProvider();
+					
+					auth.signInWithPopup(provider)
+						.then((result) => {
+							// Login bem-sucedido
+							window.location.href = './index.html';
+						})
+						.catch((error) => {
+							// Exibir erro
+							const errorElement = document.getElementById('loginError');
+							errorElement.textContent = 'Erro ao fazer login com Google: ' + error.message;
+							errorElement.style.display = 'block';
+						});
+				}
         
         // Recuperação de senha
         function sendPasswordResetEmail() {
