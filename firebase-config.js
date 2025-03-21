@@ -6,7 +6,7 @@ const firebaseConfig = {
   projectId: "whatsstag",
   storageBucket: "whatsstag.appspot.com",
   messagingSenderId: "216266845109",
-  appId: "1:216266845109:web:xxxxxxxxxxxxxxxxxxxx" // Precisamos do valor completo do appId
+  appId: "1:216266845109:android:3abd16906c9f30456d07fc" // Precisamos do valor completo do appId
 };
 
 // Inicializa o Firebase
