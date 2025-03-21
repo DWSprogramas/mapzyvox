@@ -14,9 +14,10 @@
     <!-- Fim PWA elementos -->
     
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+		<script src="./firebase-config.js"></script>
     
     <style>
         body {
@@ -385,21 +386,43 @@
                 });
         }
         
-        function loginWithGoogle() {
-					const provider = new firebase.auth.GoogleAuthProvider();
-					
-					auth.signInWithPopup(provider)
-						.then((result) => {
+			function loginWithGoogle() {
+				const provider = new firebase.auth.GoogleAuthProvider();
+				
+				// Adicionar escopo ao provider (opcional)
+				provider.addScope('profile');
+				provider.addScope('email');
+				
+				// Usar redirect em vez de popup
+				auth.signInWithRedirect(provider)
+					.catch((error) => {
+						// Exibir erro
+						const errorElement = document.getElementById('loginError');
+						errorElement.textContent = 'Erro ao iniciar login com Google: ' + error.message;
+						errorElement.style.display = 'block';
+						console.error('Erro completo:', error);
+					});
+			}
+
+			// Adicionar esta função para lidar com o redirecionamento
+			function checkRedirectResult() {
+				auth.getRedirectResult()
+					.then((result) => {
+						if (result.user) {
 							// Login bem-sucedido
 							window.location.href = './index.html';
-						})
-						.catch((error) => {
-							// Exibir erro
-							const errorElement = document.getElementById('loginError');
-							errorElement.textContent = 'Erro ao fazer login com Google: ' + error.message;
-							errorElement.style.display = 'block';
-						});
-				}
+						}
+					})
+					.catch((error) => {
+						const errorElement = document.getElementById('loginError');
+						errorElement.textContent = 'Erro ao fazer login com Google: ' + JSON.stringify(error);
+						errorElement.style.display = 'block';
+						console.error('Erro completo:', error);
+					});
+			}
+
+			// Chamar esta função quando a página carregar
+			document.addEventListener('DOMContentLoaded', checkRedirectResult);
         
         // Recuperação de senha
         function sendPasswordResetEmail() {
