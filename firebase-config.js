@@ -7,7 +7,6 @@ const firebaseConfig = {
   storageBucket: "whatsstag.firebasestorage.app",
   messagingSenderId: "216266845109",
   appId: "1:216266845109:web:5741201811d4bcab6d07fc"
-  // Pode remover o measurementId se não estiver usando Analytics
 };
 
 // Inicializa o Firebase
