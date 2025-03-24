@@ -47,7 +47,7 @@ auth.onAuthStateChanged((user) => {
 // Função para carregar dados do usuário
 function loadUserData(userId) {
   // Referência para o nó do usuário no banco de dados
-  const userRef = db.ref('users/' + userId);
+  const userRef = db.ref('MapzyVox/users/' + userId);
   
   // Buscar os dados do usuário
   userRef.once('value')
@@ -80,7 +80,7 @@ function createUserData(userId) {
     transcriptions: {}
   };
   
-  db.ref('users/' + userId).set(userData)
+  db.ref('MapzyVox/users/' + userId).set(userData)
     .then(() => {
       console.log('Dados iniciais do usuário criados');
     })
@@ -97,8 +97,17 @@ function saveUserApiKey(apiKey) {
     return Promise.reject(new Error('Usuário não está logado'));
   }
   
-  return db.ref('users/' + user.uid).update({
+  // Usando o caminho compatível com suas regras de segurança
+  return db.ref('MapzyVox/users/' + user.uid).update({
     apiKey: apiKey
+  })
+  .then(() => {
+    console.log('Chave API salva com sucesso');
+    return "Chave API salva com sucesso";
+  })
+  .catch((error) => {
+    console.error('Erro ao salvar chave API:', error);
+    throw error;
   });
 }
 
@@ -111,7 +120,7 @@ function saveTranscription(transcriptionData) {
   }
   
   // Criar um ID único para a transcrição
-  const transcriptionId = db.ref().child('users/' + user.uid + '/transcriptions').push().key;
+  const transcriptionId = db.ref().child('MapzyVox/users/' + user.uid + '/transcriptions').push().key;
   
   // Dados completos da transcrição
   const transcription = {
@@ -125,7 +134,7 @@ function saveTranscription(transcriptionData) {
   
   // Criar uma atualização para salvar
   const updates = {};
-  updates['users/' + user.uid + '/transcriptions/' + transcriptionId] = transcription;
+  updates['MapzyVox/users/' + user.uid + '/transcriptions/' + transcriptionId] = transcription;
   
   // Salvar no banco de dados
   return db.ref().update(updates);
@@ -139,7 +148,7 @@ function getUserTranscriptions() {
     return Promise.reject(new Error('Usuário não está logado'));
   }
   
-  return db.ref('users/' + user.uid + '/transcriptions')
+  return db.ref('MapzyVox/users/' + user.uid + '/transcriptions')
     .orderByChild('createdAt')
     .once('value')
     .then((snapshot) => {
@@ -159,7 +168,7 @@ function deleteTranscription(transcriptionId) {
     return Promise.reject(new Error('Usuário não está logado'));
   }
   
-  return db.ref('users/' + user.uid + '/transcriptions/' + transcriptionId).remove();
+  return db.ref('MapzyVox/users/' + user.uid + '/transcriptions/' + transcriptionId).remove();
 }
 
 // Função para atualizar uma transcrição
@@ -170,7 +179,7 @@ function updateTranscription(transcriptionId, updatedData) {
     return Promise.reject(new Error('Usuário não está logado'));
   }
   
-  return db.ref('users/' + user.uid + '/transcriptions/' + transcriptionId).update(updatedData);
+  return db.ref('MapzyVox/users/' + user.uid + '/transcriptions/' + transcriptionId).update(updatedData);
 }
 
 // Exportar funções para uso em outros scripts
