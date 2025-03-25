@@ -1,10 +1,76 @@
-// Funções de login e registro
+// Funções de autenticação de usuário
+
+// Verificar o estado de autenticação atual
+function checkAuthState(callback) {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (callback) {
+      callback(user);
+    }
+  });
+}
+
+// Atualizar informações do usuário na interface
+function updateUserInfo(user) {
+  const userNameElement = document.getElementById('user-name');
+  const userEmailElement = document.getElementById('user-email');
+  const userPhotoElement = document.getElementById('user-photo');
+  
+  if (userNameElement && user) {
+    userNameElement.textContent = user.displayName || 'Usuário';
+  }
+  
+  if (userEmailElement && user) {
+    userEmailElement.textContent = user.email || '';
+  }
+  
+  if (userPhotoElement && user) {
+    if (user.photoURL) {
+      userPhotoElement.src = user.photoURL;
+      userPhotoElement.style.display = 'block';
+    } else {
+      // Se não tiver foto, mostrar inicial do nome
+      const initials = (user.displayName || 'U').charAt(0).toUpperCase();
+      userPhotoElement.style.display = 'none';
+      const userInitials = document.getElementById('user-initials');
+      if (userInitials) {
+        userInitials.textContent = initials;
+        userInitials.style.display = 'flex';
+      }
+    }
+  }
+}
+
+// Carregar dados do usuário do Realtime Database
+function loadUserData(userId) {
+  return firebase.database().ref('users/' + userId).once('value')
+    .then((snapshot) => {
+      return snapshot.val();
+    })
+    .catch((error) => {
+      console.error('Erro ao carregar dados do usuário:', error);
+      return null;
+    });
+}
+
+// Logout do usuário
+function logout() {
+  firebase.auth().signOut()
+    .then(() => {
+      console.log('Usuário deslogado com sucesso');
+      window.location.href = './login.html';
+    })
+    .catch((error) => {
+      console.error('Erro ao fazer logout:', error);
+      showError('Erro ao fazer logout: ' + error.message);
+    });
+}
 
 // Login com email e senha
 function loginWithEmail(email, password) {
   // Mostrar indicador de carregamento
   const loginButton = document.getElementById('login-button');
   if (loginButton) {
+    const originalButtonContent = loginButton.innerHTML;
     loginButton.innerHTML = '<span class="material-icons">hourglass_top</span> Entrando...';
     loginButton.disabled = true;
   }
@@ -20,7 +86,7 @@ function loginWithEmail(email, password) {
       
       // Restaurar botão
       if (loginButton) {
-        loginButton.innerHTML = 'Entrar';
+        loginButton.innerHTML = '<span class="material-icons">login</span> Entrar';
         loginButton.disabled = false;
       }
       
@@ -49,6 +115,7 @@ function loginWithGoogle() {
   // Mostrar indicador de carregamento
   const googleButton = document.getElementById('google-login');
   if (googleButton) {
+    const originalButtonContent = googleButton.innerHTML;
     googleButton.innerHTML = '<span class="material-icons">hourglass_top</span> Conectando...';
     googleButton.disabled = true;
   }
@@ -63,7 +130,7 @@ function loginWithGoogle() {
       const isNewUser = result.additionalUserInfo.isNewUser;
       if (isNewUser) {
         // Criar dados iniciais do usuário
-        window.firebaseHelper.createUserData(user.uid);
+        createUserData(user.uid);
       }
       
       // Redirecionar para a página principal
@@ -74,7 +141,7 @@ function loginWithGoogle() {
       
       // Restaurar botão
       if (googleButton) {
-        googleButton.innerHTML = '<span class="material-icons google-icon">account_circle</span> Continuar com Google';
+        googleButton.innerHTML = '<img src="img/google-icon.svg" alt="Google" class="google-logo"> Continuar com Google';
         googleButton.disabled = false;
       }
       
@@ -88,6 +155,7 @@ function registerUser(email, password, name) {
   // Mostrar indicador de carregamento
   const registerButton = document.getElementById('register-button');
   if (registerButton) {
+    const originalButtonContent = registerButton.innerHTML;
     registerButton.innerHTML = '<span class="material-icons">hourglass_top</span> Registrando...';
     registerButton.disabled = true;
   }
@@ -103,7 +171,7 @@ function registerUser(email, password, name) {
         displayName: name
       }).then(() => {
         // Criar dados iniciais do usuário
-        window.firebaseHelper.createUserData(user.uid);
+        createUserData(user.uid);
         
         // Redirecionar para a página principal
         window.location.href = './index.html';
@@ -114,7 +182,7 @@ function registerUser(email, password, name) {
       
       // Restaurar botão
       if (registerButton) {
-        registerButton.innerHTML = 'Cadastrar';
+        registerButton.innerHTML = '<span class="material-icons">person_add</span> Cadastrar';
         registerButton.disabled = false;
       }
       
@@ -131,6 +199,30 @@ function registerUser(email, password, name) {
       
       // Mostrar mensagem
       showError(errorMessage);
+    });
+}
+
+// Criar estrutura inicial de dados do usuário
+function createUserData(userId) {
+  const userData = {
+    createdAt: new Date().toISOString(),
+    settings: {
+      theme: 'light',
+      notifications: true
+    },
+    transcriptions: {
+      count: 0
+    }
+  };
+  
+  return firebase.database().ref('users/' + userId).set(userData)
+    .then(() => {
+      console.log('Dados iniciais do usuário criados com sucesso');
+      return userData;
+    })
+    .catch((error) => {
+      console.error('Erro ao criar dados iniciais do usuário:', error);
+      return null;
     });
 }
 
@@ -176,5 +268,6 @@ window.authUtils = {
   loginWithEmail,
   loginWithGoogle,
   registerUser,
-  showError
+  showError,
+  createUserData
 };
