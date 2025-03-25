@@ -7,21 +7,27 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Biblioteca Material Icons da Google para ícones -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Alpine.js para interações simples -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Scripts Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <!-- Scripts da aplicação -->
   <script src="register-sw.js"></script>
+  <script src="security.js"></script>
+  <script src="storage-manager.js"></script>
   <script src="firebase-config.js"></script>
   <script src="user-auth.js"></script>
-  <script src="ui-controller.js"></script>
-  <script src="theme-manager.js"></script>
 </head>
 <body class="login-page">
-  <div class="theme-toggle-container" id="theme-container"></div>
-  
   <div class="container" x-data="{ isLoginMode: true }">
     <div class="auth-card">
       <div class="app-logo">
-        <img src="icons/icon-192x192.png" alt="App Logo" width="80">
         <h1>VoiceTranscribe</h1>
+        <p>Gravação, Transcrição e Processamento de Áudio</p>
       </div>
       
       <div class="tabs">
@@ -41,10 +47,10 @@
         <button id="login-button" class="btn btn-primary">Entrar</button>
         <div class="divider">ou</div>
         <button id="google-login" class="btn btn-outline">
-          <img src="icons/google.svg" alt="Google"> Continuar com Google
+          <span class="material-icons google-icon">account_circle</span> Continuar com Google
         </button>
         <p class="text-center mt-2">
-          <a href="#" class="text-link">Esqueceu a senha?</a>
+          <a href="#" class="text-link" id="forgot-password">Esqueceu a senha?</a>
         </p>
       </div>
       
@@ -72,15 +78,31 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Verificar se o usuário já está logado
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          // Usuário já está logado, redirecionar para a página principal
+          window.location.href = './index.html';
+        }
+      });
+      
       // Configuração dos botões de login
       document.getElementById('login-button').addEventListener('click', () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        loginWithEmail(email, password);
+        
+        // Verificar se os campos foram preenchidos
+        if (!email || !password) {
+          window.authUtils.showError('Por favor, preencha todos os campos');
+          return;
+        }
+        
+        // Fazer login
+        window.authUtils.loginWithEmail(email, password);
       });
       
       document.getElementById('google-login').addEventListener('click', () => {
-        loginWithGoogle();
+        window.authUtils.loginWithGoogle();
       });
       
       // Configuração do botão de registro
@@ -90,14 +112,75 @@
         const password = document.getElementById('reg-password').value;
         const confirmPassword = document.getElementById('reg-password-confirm').value;
         
-        if (password !== confirmPassword) {
-          UIComponents.createToast('As senhas não conferem', 'error');
+        // Verificar se os campos foram preenchidos
+        if (!name || !email || !password || !confirmPassword) {
+          window.authUtils.showError('Por favor, preencha todos os campos');
           return;
         }
         
-        registerUser(email, password, name);
+        // Verificar se as senhas conferem
+        if (password !== confirmPassword) {
+          window.authUtils.showError('As senhas não conferem');
+          return;
+        }
+        
+        // Fazer registro
+        window.authUtils.registerUser(email, password, name);
+      });
+      
+      // Esqueceu a senha
+      document.getElementById('forgot-password').addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        if (!email) {
+          window.authUtils.showError('Por favor, digite seu e-mail');
+          return;
+        }
+        
+        firebase.auth().sendPasswordResetEmail(email)
+          .then(() => {
+            alert('Um email de redefinição de senha foi enviado para ' + email);
+          })
+          .catch((error) => {
+            console.error('Erro ao enviar email de redefinição:', error);
+            window.authUtils.showError('Erro ao enviar email de redefinição: ' + error.message);
+          });
+      });
+      
+      // Permitir login pressionando Enter no campo de senha
+      document.getElementById('password').addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+          document.getElementById('login-button').click();
+        }
+      });
+      
+      // Permitir registro pressionando Enter no campo de confirmação de senha
+      document.getElementById('reg-password-confirm').addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+          document.getElementById('register-button').click();
+        }
       });
     });
   </script>
-</body>
-</html>
+  
+  <style>
+    /* Estilos para o login.html */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+    }
+    
+    :root {
+      --primary-color: #4285f4;
+      --primary-dark: #3367d6;
+      --secondary-color: #34a853;
+      --accent-color: #fbbc05;
+      --danger-color: #ea4335;
+      --dark: #202124;
+      --medium: #5f6368;
+      --light: #e8eaed;
+      --white: #ffffff;
+    }
