@@ -141,7 +141,7 @@ function loginWithGoogle() {
       
       // Restaurar botão
       if (googleButton) {
-        googleButton.innerHTML = '<img src="img/google-icon.svg" alt="Google" class="google-logo"> Continuar com Google';
+        googleButton.innerHTML = '<span class="material-icons google-icon">g_translate</span> Continuar com Google';
         googleButton.disabled = false;
       }
       
